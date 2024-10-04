@@ -29,10 +29,36 @@ async function run() {
     app.get("/rooms", async (req, res) => {
       const category = req.query.category;
 
+      const location = req.query.location;
+
+      // const checkIn = req.query.checkIn;
+      // const searchCheckIn = new Date(checkIn).toISOString().split("T")[0];
+
+      // const checkOut = req.query.checkOut;
+      // const searchCheckOut = new Date(checkOut).toISOString().split("T")[0];
+
+      // const guest = req.query.guest;
+
       let query = {};
       if (category) {
         query.category = { $regex: category, $options: "i" };
       }
+
+      if (location) {
+        query.$or = [
+          { destination: { $regex: location, $options: "i" } },
+          { destination: { $exists: false } },
+          { destination: { $ne: "" } }
+        ];
+      }
+      
+      // if (checkIn) {
+      //   query.checkIn = { $gte: searchCheckIn };
+      // }
+      // if (checkOut) {
+      //   query.checkOut = { $lte: searchCheckOut };
+      // }
+    
       const rooms = await roomsCollection.find(query).toArray();
       res.send(rooms);
     });
